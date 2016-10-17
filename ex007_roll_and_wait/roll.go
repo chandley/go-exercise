@@ -5,17 +5,17 @@ import "fmt"
 import "math/rand"
 
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
 	go player("Sid")
 	go player("Nancy")
-	time.Sleep( 30 * time.Second)
+	time.Sleep(30 * time.Second)
 	fmt.Println("Time up!")
 }
 
-
 func player(name string) {
 	total := 0
-	for  {
-		total = rollDie(name,total)
+	for {
+		total = rollDie(name, total)
 	}
 }
 
@@ -25,9 +25,7 @@ func rollDie(name string, total int) int {
 	wait := 7 - roll
 	fmt.Printf("%v (%v) rolled a %v, waiting %v sec", name, total, roll, wait)
 	fmt.Println()
-	time.Sleep(time.Duration(wait) * time.Second )
+	time.Sleep(time.Duration(wait) * time.Second)
 
 	return total
 }
-
-
