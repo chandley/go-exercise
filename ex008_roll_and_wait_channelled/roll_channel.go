@@ -9,15 +9,20 @@ type player struct {
 	total int
 }
 
+type roll struct {
+	score   int
+	message string
+}
+
 func main() {
 	gameTimer := make(chan string)
 	go func() {
-		time.Sleep(2 * time.Second)
+		time.Sleep(30 * time.Second)
 		gameTimer <- "Time is up!"
 	}()
 
-	sid := player{"Sid", 0}
-	nancy := player{"Nancy", 0}
+	sid := player{name: "Sid"}
+	nancy := player{name: "Nancy"}
 
 	go tally(&sid, keepRolling())
 	go tally(&nancy, keepRolling())
@@ -34,30 +39,30 @@ func main() {
 	fmt.Println()
 }
 
-func rollDie() (roll int, wait int) {
-	roll = rand.Intn(6) + 1
-	wait = 7 - roll
+func rollDie() (score int, wait int) {
+	score = rand.Intn(6) + 1
+	wait = 7 - score
 	return
 }
 
-func keepRolling() chan int {
-	channel := make(chan int)
+func keepRolling() chan roll {
+	channel := make(chan roll)
 	go func() {
 		for {
-			roll, wait := rollDie()
-			fmt.Printf("rolled a %v, waiting %v sec \n", roll, wait)
-			channel <- roll
+			score, wait := rollDie()
+			msg := fmt.Sprintf("rolled a %v, waiting %v sec", score, wait)
+			channel <- roll{score, msg}
 			time.Sleep(time.Duration(wait) * time.Second)
 		}
 	}()
 	return channel
 }
 
-func tally(player *player, channel chan int) {
+func tally(player *player, channel chan roll) {
 	for {
 		roll := <-channel
-		player.total += roll
-		fmt.Printf("%v (%v) rolled %v \n", player.name, player.total, roll)
+		player.total += roll.score
+		fmt.Printf("%v (%v) rolled %v \n", player.name, player.total, roll.message)
 	}
 
 }
