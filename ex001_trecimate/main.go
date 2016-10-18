@@ -27,5 +27,20 @@ func main() {
 }
 
 func trecimate(n int) {
-	fmt.Println("Replace this to get the required output")
+	for n != 1 {
+		adjustment := 0
+		remainder := n % 3
+		switch remainder {
+		case 0:
+			adjustment = 0
+		case 1:
+			adjustment = -1
+		case 2:
+			adjustment = 1
+		}
+		fmt.Printf("Have %v, adding %v\n", n, adjustment)
+		n = (n + adjustment) / 3
+	}
+	fmt.Println("Have 1, stopping")
+
 }
