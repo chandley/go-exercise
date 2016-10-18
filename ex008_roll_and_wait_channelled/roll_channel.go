@@ -3,6 +3,7 @@ package main
 import "time"
 import "fmt"
 import "math/rand"
+import "sort"
 
 type player struct {
 	name  string
@@ -15,27 +16,32 @@ type roll struct {
 }
 
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
+
 	gameTimer := make(chan string)
 	go func() {
-		time.Sleep(30 * time.Second)
+		time.Sleep(10 * time.Second)
 		gameTimer <- "Time is up!"
 	}()
 
-	sid := player{name: "Sid"}
-	nancy := player{name: "Nancy"}
-
-	go tally(&sid, keepRolling())
-	go tally(&nancy, keepRolling())
+	players := []player{player{name: "Sid"}, player{name: "Nancy"}, player{name: "Gavin"}, player{name: "Tracey"}}
+	for index := range players {
+		go tally(&players[index], keepRolling())
+	}
 
 	fmt.Println(<-gameTimer)
 
-	winner := player{"Draw! Neither", 0}
-	if sid.total < nancy.total {
-		winner = nancy
-	} else if nancy.total < sid.total {
-		winner = sid
+	sort.Sort(sort.Reverse(ByTotal(players)))
+	for _, finisher := range players {
+		fmt.Printf("%v scored total %v\n", finisher.name, finisher.total)
 	}
-	fmt.Printf("%v won", winner.name)
+	if players[0].total == players[1].total {
+		fmt.Printf("It was a draw")
+	} else {
+		winner := players[0]
+		fmt.Printf("%v won with score %v", winner.name, winner.total)
+	}
+
 	fmt.Println()
 }
 
@@ -65,4 +71,16 @@ func tally(player *player, channel chan roll) {
 		fmt.Printf("%v (%v) rolled %v \n", player.name, player.total, roll.message)
 	}
 
+}
+
+type ByTotal []player
+
+func (p ByTotal) Len() int {
+	return len(p)
+}
+func (p ByTotal) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+func (p ByTotal) Less(i, j int) bool {
+	return p[i].total < p[j].total
 }
