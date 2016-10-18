@@ -70,7 +70,6 @@ func tally(player *player, channel chan roll) {
 		player.total += roll.score
 		fmt.Printf("%v (%v) rolled %v \n", player.name, player.total, roll.message)
 	}
-
 }
 
 type ByTotal []player
